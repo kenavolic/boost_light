@@ -89,9 +89,9 @@ lexical_cast<unsigned long long>(const std::string &str) {
   return std::stoull(str);
 }
 
-inline bool ensure_alphanum_(const std::string &str) {
+inline bool ensure_alphanum_ext(const std::string &str) {
   return std::all_of(std::cbegin(str), std::cend(str),
-                     [](char c) { return std::isalnum(c) || (c == '_'); });
+                     [](char c) { return std::isalnum(c) || (c == '_') || (c == '-'); });
 }
 } // namespace details
 
@@ -201,11 +201,11 @@ private:
       throw std::runtime_error("invalid empty option name");
     }
 
-    if (!details::ensure_alphanum_(name)) {
+    if (!details::ensure_alphanum_ext(name)) {
       throw std::runtime_error("invalid non alphanum option name " + name);
     }
 
-    if (!short_name.empty() && !details::ensure_alphanum_(short_name)) {
+    if (!short_name.empty() && !details::ensure_alphanum_ext(short_name)) {
       throw std::runtime_error("invalid non alphanum option short name " +
                                short_name);
     }

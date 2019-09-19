@@ -140,7 +140,7 @@ void parse_options(int argc, char **argv) {
       .add_flag({"flag2", "f2", "flag 2", &(opts.f2)})
       .add_opt<int>({"intopt", "i", "ranged int option", &(opts.i), 0, 0, 10},
                     true)
-      .add_opt<double>({"dopt_longname", "", "double option", &(opts.d), 0.0f})
+      .add_opt<double>({"dopt_long-name", "", "double option", &(opts.d), 0.0f})
       .add_opt<bool>({"bopt", "b", "bool option", &(opts.b), true})
       .add_opt<std::string>(
           {"sopt", "s", "string option", &(opts.str), "dummy"})
@@ -153,7 +153,7 @@ void parse_options(int argc, char **argv) {
   std::cout << "opts.f1 = " << opts.f1 << std::endl;
   std::cout << "opts.f2 = " << opts.f2 << std::endl;
   std::cout << "opts.intopt = " << opts.i << std::endl;
-  std::cout << "opts.dopt_longname = " << opts.d << std::endl;
+  std::cout << "opts.dopt_long-name = " << opts.d << std::endl;
   std::cout << "opts.sopt = " << opts.str << std::endl;
   std::cout << "opts.bopt = " << opts.b << std::endl;
   std::cout << "opts.STR_POS = " << opts.first_pos << std::endl;
@@ -240,7 +240,7 @@ void parse_options(int argc, char **argv) {
 //--------------------------------------------------------
 
 // NOTE: call it with following args to test lpo
-// ./demo --flag2 -f1 --dopt_longname 4.0 --intopt 10 --sopt "toto" pos1 3
+// ./demo --flag2 -f1 --dopt_long-name 4.0 --intopt 10 --sopt "toto" pos1 3
 int main(int argc, char **argv) {
 
   // Program options test
