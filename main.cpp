@@ -125,6 +125,7 @@ struct my_opts {
   std::string first_pos;
   int int_pos;
   bool b;
+  std::vector<std::string> vstr;
 };
 
 void parse_options(int argc, char **argv) {
@@ -133,7 +134,8 @@ void parse_options(int argc, char **argv) {
   // string (mandatory) positional opts: STR_POS (str) and INT_POS(int)
 
   // List all possible type in your options in the prog options declaration
-  lpo::program_options<int, double, std::string, bool> po{argv[0], "Program help:"};
+  lpo::program_options<int, double, std::string, bool, std::vector<std::string>>
+      po{argv[0], "Program help:"};
   my_opts opts;
 
   po.add_flag({"flag1", "f1", "flag 1", &(opts.f1)})
@@ -141,6 +143,8 @@ void parse_options(int argc, char **argv) {
       .add_opt<int>({"intopt", "i", "ranged int option", &(opts.i), 0, 0, 10},
                     true)
       .add_opt<double>({"dopt_long-name", "", "double option", &(opts.d), 0.0f})
+      .add_opt<std::vector<std::string>>(
+          {"vecopt", "v", "vec option", &(opts.vstr)})
       .add_opt<bool>({"bopt", "b", "bool option", &(opts.b), true})
       .add_opt<std::string>(
           {"sopt", "s", "string option", &(opts.str), "dummy"})
@@ -158,6 +162,10 @@ void parse_options(int argc, char **argv) {
   std::cout << "opts.bopt = " << opts.b << std::endl;
   std::cout << "opts.STR_POS = " << opts.first_pos << std::endl;
   std::cout << "opts.INT_POS = " << opts.int_pos << std::endl;
+
+  for (const auto &o : opts.vstr) {
+    std::cout << "opts.vstr = " << o << std::endl;
+  }
 
   lpo::program_options<int, double, std::string> nopos{"testnopos",
                                                        "Program help:"};

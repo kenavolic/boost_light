@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <string>
@@ -33,6 +34,21 @@ namespace lpo {
 
 namespace details {
 template <class T> struct always_false : std::false_type {};
+
+template <char> struct word_delimiter : public std::string {};
+
+template <char D>
+std::istream &operator>>(std::istream &is, word_delimiter<D> &output) {
+  std::getline(is, output, D);
+  return is;
+}
+
+template <char D> inline auto split(const std::string &in) {
+  std::istringstream iss(in);
+  std::vector<std::string> vec(std::istream_iterator<word_delimiter<D>>{iss},
+                               std::istream_iterator<word_delimiter<D>>{});
+  return vec;
+}
 
 template <typename T> inline T lexical_cast(const std::string &) {
   throw std::bad_cast();
@@ -51,6 +67,12 @@ template <> inline bool lexical_cast<bool>(const std::string &str) {
   }
 
   throw std::bad_cast();
+}
+
+template <>
+inline std::vector<std::string>
+lexical_cast<std::vector<std::string>>(const std::string &str) {
+  return split<','>(str);
 }
 
 template <> inline double lexical_cast<double>(const std::string &str) {
@@ -90,8 +112,9 @@ lexical_cast<unsigned long long>(const std::string &str) {
 }
 
 inline bool ensure_alphanum_ext(const std::string &str) {
-  return std::all_of(std::cbegin(str), std::cend(str),
-                     [](char c) { return std::isalnum(c) || (c == '_') || (c == '-'); });
+  return std::all_of(std::cbegin(str), std::cend(str), [](char c) {
+    return std::isalnum(c) || (c == '_') || (c == '-');
+  });
 }
 } // namespace details
 
