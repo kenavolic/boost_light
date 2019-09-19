@@ -43,6 +43,16 @@ inline std::string lexical_cast<std::string>(const std::string &str) {
   return str;
 }
 
+template <> inline bool lexical_cast<bool>(const std::string &str) {
+  if (str == "True" || str == "true" || str == "1") {
+    return true;
+  } else if (str == "False" || str == "false" || str == "0") {
+    return false;
+  }
+
+  throw std::bad_cast();
+}
+
 template <> inline double lexical_cast<double>(const std::string &str) {
   return std::stod(str);
 }
