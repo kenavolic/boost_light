@@ -13,5 +13,6 @@ it to meet its project specific needs.
 
 * lsg.h: light signal that provides a minimalist signal class (very minimal boost signal)
 * lsm.h: light state machine that provides an independant header-only state machine module (minimal boost msm)
+* lpo.h: light program option
 * main.cpp: demo
 
