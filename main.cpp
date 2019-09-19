@@ -137,7 +137,8 @@ void parse_options(int argc, char **argv) {
 
   po.add_flag({"flag1", "f1", "flag 1", &(opts.f1)})
       .add_flag({"flag2", "f2", "flag 2", &(opts.f2)})
-      .add_opt<int>({"intopt", "i", "ranged int option", &(opts.i), 0, 0, 10})
+      .add_opt<int>({"intopt", "i", "ranged int option", &(opts.i), 0, 0, 10},
+                    true)
       .add_opt<double>({"dopt_longname", "", "double option", &(opts.d), 0.0f})
       .add_opt<std::string>(
           {"sopt", "s", "string option", &(opts.str), "dummy"})

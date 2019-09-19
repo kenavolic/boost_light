@@ -143,7 +143,8 @@ public:
   ///
   /// @brief Register a new value option
   ///
-  template <typename T> program_options &add_opt(opt<T> &&value_opt);
+  template <typename T>
+  program_options &add_opt(opt<T> &&value_opt, bool mandatory = false);
 
   ///
   /// @brief Register a new positional arg
@@ -205,6 +206,7 @@ private:
   std::string m_prog;
   std::string m_global_desc;
   std::map<std::string, std::string> m_check_list;
+  std::map<std::string, bool> m_mandatory_map;
   std::vector<flag_opt_t> m_flag_list;
   std::vector<opt_t> m_opt_list;
   std::vector<pos_opt_t> m_pos_list;
@@ -231,12 +233,18 @@ program_options<Ts...> &program_options<Ts...>::add_flag(flag_opt_t &&flag) {
 
 template <typename... Ts>
 template <typename T>
-program_options<Ts...> &program_options<Ts...>::add_opt(opt<T> &&value_opt) {
+program_options<Ts...> &program_options<Ts...>::add_opt(opt<T> &&value_opt,
+                                                        bool mandatory) {
   add_opt(value_opt.name, value_opt.short_name);
+
+  if (mandatory) {
+    m_mandatory_map[value_opt.name] = false;
+  }
 
   auto tmp_opt = std::move(value_opt);
   *(tmp_opt.val) = tmp_opt.default_val;
   m_opt_list.push_back(std::move(tmp_opt));
+
   return *this;
 }
 
@@ -294,7 +302,6 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
 
     // no match check for a value match
     for (auto &v : m_opt_list) {
-
       try {
         std::visit(
             [&arg, &match, &args_count, &args, &argc, this](auto &&opt) {
@@ -319,6 +326,11 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
                   }
                 }
 
+                if (m_mandatory_map.find(opt.name) !=
+                    std::cend(m_mandatory_map)) {
+                  m_mandatory_map[opt.name] = true;
+                }
+
                 match = true;
               }
             },
@@ -339,12 +351,23 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
 
     if (!match) {
       if (arg[0] == '-') {
-          std::cerr << "[-] unknown value option " << arg << std::endl;
-            return false;
+        std::cerr << "[-] unknown value option " << arg << std::endl;
+        return false;
       }
 
       break;
     }
+  }
+
+  // check all mandtory options are set
+  std::string tmp_opt;
+  if (!std::all_of(std::cbegin(m_mandatory_map), std::cend(m_mandatory_map),
+                   [&tmp_opt](const auto &p) {
+                     tmp_opt = p.first;
+                     return p.second;
+                   })) {
+    std::cerr << "[-] missing mandatory option " << tmp_opt << std::endl;
+    return false;
   }
 
   if ((argc - args_count) != m_pos_list.size()) {
@@ -363,14 +386,15 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
               *(opt.val) = details::lexical_cast<T>(arg);
             } catch (...) {
               throw std::runtime_error(
-                  "invalid value for pos argument number " + std::to_string(i));
+                  "invalid value for pos argument number " +
+                  std::to_string(i + 1));
             }
 
             if constexpr (std::is_arithmetic_v<T>) {
               if (!in_range(opt)) {
                 throw std::runtime_error(
                     "out of range value for pos argument number " +
-                    std::to_string(i));
+                    std::to_string(i + 1));
               }
             }
           },
@@ -392,7 +416,9 @@ void program_options<Ts...>::print(std::ostream &os) const {
 
   for (unsigned i = 0; i < m_pos_list.size(); ++i) {
     std::visit(
-        [&os, &i](auto &&opt) { os << "[ARG" << std::to_string(i) << "] "; },
+        [&os, &i](auto &&opt) {
+          os << "[ARG" << std::to_string(i + 1) << "] ";
+        },
         m_pos_list[i]);
   }
 
@@ -400,7 +426,7 @@ void program_options<Ts...>::print(std::ostream &os) const {
   for (unsigned i = 0; i < m_pos_list.size(); ++i) {
     std::visit(
         [&os, &i](auto &&opt) {
-          os << "ARG" << std::to_string(i) << ": " << opt.desc << std::endl;
+          os << "ARG" << std::to_string(i + 1) << ": " << opt.desc << std::endl;
         },
         m_pos_list[i]);
   }
