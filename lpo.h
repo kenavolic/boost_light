@@ -441,6 +441,7 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
       return false;
     }
   }
+  return true;
 }
 template <typename... Ts>
 void program_options<Ts...>::print(std::ostream &os) const {
