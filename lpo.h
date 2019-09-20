@@ -210,7 +210,7 @@ private:
   bool has_opt(const std::string &name, const std::string &short_name) const {
     return std::any_of(std::cbegin(m_check_list), std::cend(m_check_list),
                        [&](const auto &n) {
-                         return (name == n.first || short_name == n.second);
+                         return (name == n.first || (!short_name.empty() && short_name == n.second));
                        });
   }
 
