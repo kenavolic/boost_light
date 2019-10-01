@@ -1,13 +1,11 @@
 # boost_light
 
-Very light version of some boost modules.
+Provide customizable lighweight modules that can be included and tailored to your project
+if your expectation (in terms of feature) are pretty low and you don't want to bother
+including boost for such minimalist needs.
 
-This idea is to provide a minimalist version of modules originally
-provided by boost.
-
-The interface and the implementation of the modules are different from the
-legacy ones. It aims to provide only a skeleton so that a developer can extend
-it to meet its project specific needs.
+The expectation is just that each module must lie in a single header file. It has been developed pretty
+quickly thus don't expect something robust.
 
 # Features
 
