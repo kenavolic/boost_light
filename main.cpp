@@ -1,59 +1,9 @@
 #include "lpo.h"
-#include "lsg.h"
 #include "lsm.h"
 
 #include <functional>
 #include <iostream>
 #include <vector>
-
-//--------------------------------------------------------
-// Signal slot example
-//--------------------------------------------------------
-
-struct callback {
-  void operator()() { std::cout << "callback called" << std::endl; }
-};
-
-struct callback2 {
-  void operator()(int a, int b) {
-    std::cout << "callback2 called with param " << a << " and " << b
-              << std::endl;
-  }
-};
-
-struct update_event {};
-struct modified_event {};
-
-struct image {
-  lsg::signal<void(update_event)> sigup;
-  lsg::signal<void(modified_event)> sigmod;
-
-  void force_update() {
-    sigup(update_event());
-    sigmod(modified_event());
-  }
-};
-
-struct viewer {
-  image img;
-
-  viewer() {
-    img.sigup.connect([this](auto &&evt) {
-      this->on_update(std::forward<decltype(evt)>(evt));
-    });
-    img.sigmod.connect([this](auto &&evt) {
-      this->on_modified(std::forward<decltype(evt)>(evt));
-    });
-  }
-
-  void on_update(update_event evt) {
-    std::cout << "update evt receive" << std::endl;
-  }
-
-  void on_modified(modified_event) {
-    std::cout << "modified evt receive" << std::endl;
-  }
-};
 
 //--------------------------------------------------------
 // State machine example
@@ -254,21 +204,6 @@ int main(int argc, char **argv) {
   // Program options test
   std::cout << "------light program options test------\n" << std::endl;
   parse_options(argc, argv);
-
-  // Sig test
-  std::cout << "------light signal test------\n" << std::endl;
-
-  lsg::signal<void()> sig;
-  lsg::signal<void(int, int)> sig2;
-
-  sig.connect(callback());
-  sig2.connect(callback2());
-  sig();
-  sig2(3, 4);
-  viewer v;
-  v.img.force_update();
-
-  std::cout << std::endl;
 
   // State machine test
   std::cout << "------light state machine test------\n" << std::endl;
